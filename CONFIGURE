@@ -1,0 +1,93 @@
+################################################################################
+#                                  _                                           #
+#            ___ _____      ____ _| |__  _   _ _ __   __ _  __                 #
+#           / __/ _ \ \ /\ / / _` | '_ \| | | | '_ \ / _` |/ _` |              #
+#          | (__ (_) \ V  V / (_| | |_) | |_| | | | | (_| | (_| |              #
+#           \___\___/ \_/\_/ \__,_|_.__/ \__,_|_| |_|\__, |\__,_|              #
+#                                                    |___/                     #
+#                                                                              #
+################################################################################
+#									       #
+# COWAbunga Configuration File						       #
+# This project is dependent on a UNIX or UNIX-like system with                 #
+# all of the tools below                                                       #
+#                                                                              #
+######################### CHANGE USER SETTINGS HERE ############################
+
+# Set the directory locations
+$HOME = 	"/home/paulie/www/cowabunga/";	# Default htdocs location
+#$HOME = 	"/home/username/public_html/";	# Example of user public_html
+#$HOME = 	"/usr/local/www/htdocs/";	# Example of htdocs
+$SRCDIR = 	"${HOME}src/";
+$DBDIRECTORY = 	"${HOME}db/";
+
+# Set the URL paths
+$URL = 		"http://www.pauliesworld.org/cowabunga/";
+$URLCSS = 	"${URL}css/";
+$URLIMG = 	"${URL}img/";
+$URLJS = 	"${URL}js/";
+
+# Keep logs for a user-defined amount of time (in days)
+$LOGREMOVAL = 	7; 	# Keep logs for 1 week (default)
+#$LOGREMOVAL = 	30;	# Keep logs for one month
+#$LOGREMOVAL = 	365;	# Keep logs for one year
+
+# Session timeout (in minutes)
+$SESSIONTIMEOUT = 15;	# 15 minute timeout period (default)
+
+# Snapshot (database backups)
+$NEWSNAPSHOT =	1;	# Weekly snapshot taken (7 days) 
+$KEEPSNAPSHOT =	183;	# Delete old snapshots every (6 months)
+
+# Location of UNIX tools
+$AWK = 		"/usr/xpg4/bin/awk";
+$BASENAME = 	"/bin/basename";
+$CAL = 		"/bin/cal";
+$CAT = 		"/bin/cat";
+$CHMOD = 	"/bin/chmod -R 770";
+$CP = 		"/usr/bin/cp";
+$DATE = 	"/bin/date";
+$GREP = 	"/bin/grep";
+$GZIP =		"/usr/bin/gzip";
+$ECHO = 	"/bin/echo/";
+$LS = 		"/bin/ls";
+$MV = 		"/bin/mv";
+$RM = 		"/bin/rm";
+$SED =		"/usr/bin/sed";
+$SENDMAIL = 	"/usr/lib/sendmail";
+$TOUCH = 	"/bin/touch";
+$UNZIP =	"/usr/bin/unzip";
+$WC = 		"/usr/bin/wc -l";
+$ZIP = 		"/usr/bin/zip";
+
+############ FOR SYSTEM USE ONLY!  DO NOT MODIFY ANYTHING BELOW! ###############
+
+# CGI and File Lock modules
+use CGI qw(:param);
+use CGI::Carp qw(fatalsToBrowser);
+use Fcntl qw(:DEFAULT :flock);
+use Digest::MD5 qw(md5 md5_hex md5_base64);
+
+# COWAbunga Library
+require "${SRCDIR}import.pl";
+require "${SRCDIR}add.pl";
+require "${SRCDIR}edit.pl";
+require "${SRCDIR}panels.pl";
+require "${SRCDIR}snapshots.pl";
+require "${SRCDIR}boxes.pl";
+require "${SRCDIR}delete.pl";
+require "${SRCDIR}filehandler.pl";
+require "${SRCDIR}planner.pl";
+require "${SRCDIR}tags.pl";
+require "${SRCDIR}logs.pl";
+require "${SRCDIR}conflicts.pl";
+require "${SRCDIR}search.pl";
+require "${SRCDIR}time.pl";
+require "${SRCDIR}security.pl";
+require "${SRCDIR}schedule.pl";
+require "${SRCDIR}dbtable.pl";
+require "${SRCDIR}sanitize.pl";
+
+################################################################################
+
+1;

@@ -1,0 +1,60 @@
+#!/usr/local/bin/perl
+
+# COWAbunga -
+# File: avail
+# Conference on World Affairs Scheduler
+#   This file commits in participant and venue availability
+#   via POST calls from schedule.pl and edit.pl
+# Status: STABLE
+
+require "../CONFIGURE";
+
+handler();
+
+sub handler()
+{
+    my $buffer;
+
+    # Read from standard-in to avoid browser URL limit
+    read(STDIN,$buffer,$ENV{CONTENT_LENGTH});
+    my $q=new CGI;
+    print $q->header();
+
+    # Parse through all URL parameters sent through
+    $year=$day=$start=$max=$page=$sid=$buffer;
+    $year =~ s/.*&y=//;
+    $year =~ s/&.*//;
+    chomp($year);
+    $day =~ s/.*&day=//;
+    $day =~ s/&.*//;
+    chomp($day);
+    $start =~ s/.*&start=//;
+    $start =~ s/&.*//;
+    chomp($start);
+    $max =~ s/.*&max=//;
+    $max =~ s/&.*//;
+    chomp($max);
+    $page =~ s/.*&page=//;
+    $page =~ s/&.*//;
+    chomp($page);
+    $sid =~ s/.*&sid=//;
+    $sid =~ s/&.*//;
+    chomp($sid);
+
+    $pavailfile="${DBDIRECTORY}partavail${year}${day}.db";
+    $partfile="${DBDIRECTORY}participants${year}.db";
+    $venavailfile="${DBDIRECTORY}venavail${year}${day}.db";
+    $venuefile="${DBDIRECTORY}venues${year}.db";
+
+    if ($buffer =~ m/participant/)
+    {
+        addParticipantAvailability($pavailfile,$partfile,$year,$day,$start,
+	$max,$page,$sid,$buffer);
+    }
+
+    else
+    {
+    	addVenueAvailability($venavailfile,$venuefile,$year,$day,$start,$max,
+	$page,$sid,$buffer);
+    }
+}

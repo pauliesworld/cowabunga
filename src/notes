@@ -1,0 +1,221 @@
+#!/usr/local/bin/perl
+
+# COWAbunga -
+# File: notes
+# Conference on World Affairs Scheduler
+#   This file gives the user the ability to add notes
+#   to db elements
+
+require "../CONFIGURE";
+
+my $conference="${DBDIRECTORY}conference.db";
+my $year=getYearID($DBDIRECTORY,$conference);
+my $userfile="${DBDIRECTORY}users.db";
+my $venuefile="${DBDIRECTORY}venues${year}.db";
+my $partifile="${DBDIRECTORY}participants${year}.db";
+my $sessifile="${DBDIRECTORY}sessions.db";
+
+handler();
+
+sub handler()
+{
+    print "Content-type: text/html\r\n\r\n";
+    print (STDOUT <<HTML);
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<link href="${URLCSS}COWA.css" rel="stylesheet" type="text/css">
+HTML
+
+    $sid=param('sid');
+    $pid=param('pid');
+    $partid=param('partid');
+    $edit=param('edit');
+    $fname=param('fname');
+    $lname=param('lname');
+    $notes=param('notes');
+    $year=param('y');
+    $venid=param('venid');
+    $venloc=param('venloc');
+
+    if (getAccessLevel($sid,$userfile,$sessifile) =~ m/planner/)
+    {
+        print "<meta http-equiv=\"refresh\" content=\"0; url=login?msg=2
+	&sid=$sid\">";
+        exit 1;
+    }
+
+    chomp($pid);
+
+    if ($pid =~ m/venue/)
+    {
+	if($edit)
+	{
+	    editVNotes($sid,$venid,$venloc,$capacity,$notes,$venuefile,$year);
+	}
+
+	else
+	{
+	    editVNotesPage($venid,$sid,$year);
+	}
+    }
+
+    else
+    {
+    	if ($edit)
+    	{
+	    editPNotes($sid,$partid,$fname,$lname,$notes,$partifile,$year);
+        }
+
+	else
+	{
+    	    editPNotesPage($partid,$sid,$year);
+	}
+    }
+}
+
+sub editPNotesPage()
+{
+    ($partid,$sid,$year)=@_;	
+    $entry = `${GREP} PARTID${partid}DITRAP $partifile`;
+    chomp($entry);
+
+    $tags=$notes=$fname=$lname=$entry;
+    $lname =~ s/"LNAME//;
+    $lname =~ s/EMANL".*//;
+    $fname =~ s/"LNAME${lname}EMANL","FNAME//;
+    $fname =~ s/EMANF".*//;
+    $notes =~ s/.*,"NOTES//;
+    $notes =~ s/SETON".*//;
+    $notes =~ s/\\n/\n/g;
+    $lname=addRegExp($lname);
+    $fname=addRegExp($fname);
+    $notes=addRegExp($notes);
+    $notes =~ s/\\n/\n/g;
+
+    print(STDOUT <<HTML);
+<center>
+Notes for $fname $lname<br>
+<form action=notes method=GET>
+<input type=hidden name=edit value=participant>
+<input type=hidden name=fname value="$fname">
+<input type=hidden name=lname value="$lname">
+<textarea class=textField rows=10 cols=40 name=notes>$notes</textarea>
+<input type=hidden name=partid value=$partid>
+<input type=hidden name=sid value=$sid>
+<input type=hidden name=y value=$year>
+<input type=submit value="Update">
+</form>
+HTML
+}
+
+sub editPNotes()
+{
+    ($sid,$partid,$fname,$lname,$notes,$file,$year) = @_;
+
+    $name="PARTID${partid}DITRAP";
+
+    open(IN, "<", $file);
+    @contents = <IN>;
+    close(IN);
+
+    @contents = grep { !/$name/ } @contents;
+    $tags = `${GREP} PARTID${partid}DITRAP $partifile`;
+    $tags =~ s/.*SETON"//;
+    chomp($tags);
+    $fname = removeRegExp($fname);
+    $lname = removeRegExp($lname);
+    $notes = removeRegExp($notes);
+    $notes =~ s/\n/\\n/g;
+    $entry="
+	\"LNAME${lname}EMANL\",
+	\"FNAME${fname}EMANF\",
+	\"PARTID$partid\DITRAP\",
+	\"NOTES${notes}SETON\"
+	${tags}";
+    $entry =~ s/\n|\t//g;
+
+    # delete old entry
+    deleteTableObject(\@contents,$file);
+
+    # append new changes
+    addTableObject($entry,$file);
+
+    print "<meta http-equiv=\"refresh\" content=\"0; url=notes?sid=$sid&
+	partid=$partid&y=$year\">";
+}
+
+sub editVNotesPage()
+{
+    ($venid,$sid,$year)=@_;
+    chomp($venid);
+    $entry = `${GREP} VENID${venid}DINEV $venuefile`;
+    chomp($entry);
+
+    $notes=$capacity=$venloc=$entry;
+    $venloc =~ s/"VENLOC//;
+    $venloc =~ s/COLNEV".*//;
+    $capacity =~ s/".*,"SPACE//;
+    $capacity =~ s/ECAPS",.*//;
+    $notes =~ s/.*,"NOTES//;
+    $notes =~ s/SETON".*//;
+    $notes =~ s/\\n/\n/g;
+    $venloc=addRegExp($venloc);
+    $capacity=addRegExp($capacity);
+    $notes=addRegExp($notes);
+    $notes =~ s/\\n/\n/g;
+
+    print(STDOUT <<HTML);
+<center>
+Notes for $venloc:<br>
+<form action=notes method=GET>
+<input type=hidden name=edit value=venue>
+<input type=hidden name=venloc value="$venloc">
+<input type=hidden name=space value="$capacity">
+<textarea class=textField rows=10 cols=40 name=notes>$notes</textarea>
+<input type=hidden name=venid value=$venid>
+<input type=hidden name=sid value=$sid>
+<input type=hidden name=pid value=venue>
+<input type=hidden name=y value=$year>
+<input type=submit value="Update">
+</form>
+
+HTML
+}
+
+sub editVNotes()
+{
+    ($sid,$venid,$venloc,$capacity,$notes,$file,$year) = @_;
+
+    $name="VENID${venid}DINEV";
+    chomp($name);
+    chomp($venloc);
+    chomp($capacity);
+
+    open(IN, "<", $file);
+    @contents = <IN>;
+    close(IN);
+
+    @contents = grep { !/$name/ } @contents;
+    $tags = `${GREP} VENID${venid}DINEV $venuefile`;
+    $tags =~ s/.*SETON"//;
+    chomp($tags);
+    $venloc = removeRegExp($venloc);
+    $capacity = removeRegExp($capacity);
+    $notes = removeRegExp($notes);
+    $notes =~ s/\n/\\n/g;
+    $entry="
+	\"VENLOC${venloc}COLNEV\",
+	\"SPACE${capacity}ECAPS\",
+	\"VENID$venid\DINEV\",
+	\"NOTES${notes}SETON\"
+	${tags}";
+    $entry =~ s/\t|\n//g;
+
+    # delete old entry
+    deleteTableObject(\@contents,$file);
+
+    # append new changes
+    addTableObject($entry,$file);
+
+    print "<meta http-equiv=\"refresh\" content=\"0; url=notes?sid=$sid&
+	pid=venue&venid=$venid&y=$year\">";
+}

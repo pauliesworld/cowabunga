@@ -1,0 +1,38 @@
+################################################################################
+#                                  _                                           #
+#            ___ _____      ____ _| |__  _   _ _ __   __ _  __                 #
+#           / __/ _ \ \ /\ / / _` | '_ \| | | | '_ \ / _` |/ _` |              #
+#          | (__ (_) \ V  V / (_| | |_) | |_| | | | | (_| | (_| |              #
+#           \___\___/ \_/\_/ \__,_|_.__/ \__,_|_| |_|\__, |\__,_|              #
+#                                                    |___/                     #
+#                                                                              #
+################################################################################
+#                                                                              #
+# Scheduling System for the Conference on World Affairs                        #
+# Computer Science Senior Project                                              #
+# CSCI 4308                                                                    #
+#                                                                              #
+################################################################################
+
+Sponsors:
+    Malinda Painter
+    Fred Ris
+
+Project Manager:
+    Bruce Sanders
+
+Authors:
+    Paul Johnson <paulie@colorado.edu>
+	* System Library/API
+    Corey Sherman <shermacd@colorado.edu>
+	* CSS Layout/Printing Feature
+    William Tong <tongw@colorado.edu>
+	* User interface
+
+################################################################################
+
+Full documentation for the project is located in the /doc
+directory from the cowabunga root:
+	/htdocs/cwa/cowabunga/doc
+
+################################################################################
